@@ -54,6 +54,79 @@ class Tree
     end
     tree
   end
+
+  def delete(tree, node)
+    # go left
+    if node < tree.data
+      tree.left = delete(tree.left, node)
+      # go right
+    elsif node > tree.data
+      tree.right = delete(tree.right, node)
+      # its a leaf node, delete that node
+    elsif tree.left.nil? && tree.right.nil?
+      tree.data = nil
+      # its a node with a single child, make the node's parent point to node's child
+    elsif single_child(tree, node)
+      tree = if child_side(tree, node) == 'right'
+               tree.right
+             else
+               tree.left
+             end
+    end
+    tree
+  end
+
+  def find(tree, node)
+    if node < tree.data
+      find(tree.left, node)
+    elsif node > tree.data
+      find(tree.right, node)
+    elsif node == tree.data
+      puts tree
+    else
+      puts 'no such entry'
+    end
+  end
+
+  def leaf_node?(tree, node)
+    if node < tree.data
+      leaf_node?(tree.left, node)
+    elsif node > tree.data
+      leaf_node?(tree.right, node)
+    elsif tree.left.nil? && tree.right.nil?
+      true
+    else
+      false
+    end
+  end
+
+  def single_child(tree, node)
+    if node < tree.data
+      single_child(tree.left, node)
+    elsif node > tree.data
+      single_child(tree.right, node)
+    elsif !tree.left.nil? && !tree.right.nil?
+      false
+    elsif tree.left.nil? && tree.right.nil?
+      false
+    else
+      true
+    end
+  end
+
+  def child_side(tree, node)
+    if node < tree.data
+      child_side(tree.left, node)
+    elsif node > tree.data
+      child_side(tree.right, node)
+    elsif tree.left.nil? && !tree.right.nil?
+      'right'
+    elsif !tree.left.nil? && tree.right.nil?
+      'left'
+    else
+      false
+    end
+  end
 end
 
 def pretty_print(node = @root, prefix = '', is_left = true)
@@ -73,7 +146,14 @@ node_tree = tree.build_tree(arr)
 puts 'tree: '
 pretty_print(node_tree)
 
-
 puts 'inserted tree'
-inserted = tree.insert(node_tree, 2)
-pretty_print(inserted)
+pretty_print(tree.insert(node_tree, 2))
+
+puts 'deleted leaf node 7'
+pretty_print(tree.delete(node_tree, 7))
+
+puts 'deleted node with child 3'
+pretty_print(tree.delete(node_tree, 3))
+
+puts 'find me node 67'
+tree.find(node_tree, 67)
