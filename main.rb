@@ -10,8 +10,8 @@ require_relative 'lib/node'
 class Tree
   attr_accessor :root
 
-  def initialize(array)
-    @root = array
+  def initialize(arr)
+    @root = build_tree(arr)
   end
 
   def build_tree(arr)
@@ -88,6 +88,33 @@ class Tree
     end
   end
 
+  def level_order(tree)
+    # if the tree is empty, return
+    return if root.nil?
+
+    queue = [tree.root]
+    result = []
+
+    # While there is at least one discovered node
+    until queue.empty?
+      # push the address of the nodes children to the queue
+
+      queue << queue[0].left unless queue[0].left.nil?
+      queue << queue[0].right unless queue[0].right.nil?
+
+      # print the data from that node
+      result << queue[0].data
+
+      # remove the front element of the queue
+      queue.shift
+
+      # print a growing array of node data
+      # p result
+    end
+    # print just the end result
+    result
+  end
+
   def leaf_node?(tree, node)
     if node < tree.data
       leaf_node?(tree.left, node)
@@ -141,19 +168,22 @@ arr = [1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]
 arr << arr.max + 1
 
 tree = Tree.new(arr)
-node_tree = tree.build_tree(arr)
 
 puts 'tree: '
-pretty_print(node_tree)
+pretty_print(tree.root)
 
 puts 'inserted tree'
-pretty_print(tree.insert(node_tree, 2))
+pretty_print(tree.insert(tree.root, 2))
 
 puts 'deleted leaf node 7'
-pretty_print(tree.delete(node_tree, 7))
+pretty_print(tree.delete(tree.root, 7))
 
 puts 'deleted node with child 3'
-pretty_print(tree.delete(node_tree, 3))
+pretty_print(tree.delete(tree.root, 3))
 
 puts 'find me node 67'
-tree.find(node_tree, 67)
+tree.find(tree.root, 67)
+
+puts 'Level order traversal'
+p tree.level_order(tree)
+
