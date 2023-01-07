@@ -88,11 +88,11 @@ class Tree
     end
   end
 
-  def level_order(tree)
+  def level_order
     # if the tree is empty, return
     return if root.nil?
 
-    queue = [tree.root]
+    queue = [root]
     result = []
 
     # While there is at least one discovered node
@@ -107,23 +107,76 @@ class Tree
 
       # remove the front element of the queue
       queue.shift
-
-      # print a growing array of node data
-      # p result
     end
-    # print just the end result
-    result
+    if block_given?
+      result.each { |node| yield node}
+    else
+      # print just the end result
+      result
+    end
   end
 
-  def leaf_node?(tree, node)
-    if node < tree.data
-      leaf_node?(tree.left, node)
-    elsif node > tree.data
-      leaf_node?(tree.right, node)
-    elsif tree.left.nil? && tree.right.nil?
-      true
-    else
-      false
+  def preorder(node = root, result = [], &block)
+    if node.nil? && block_given?
+      # the block gets lost during the recursion?
+      result.each { |node| yield node}
+    elsif node.nil?
+      return result
+    end
+
+    result << node.data
+    preorder(node.left, result)
+    preorder(node.right, result)
+  end
+
+  def inorder(node = @root, result = [], &block)
+    return result if node.nil?
+
+    inorder(node.left, result)
+    result << node.data
+    inorder(node.right, result)
+  end
+
+  def postorder(node = @root, result = [], &block)
+    return result if node.nil?
+
+    postorder(node.left, result)
+    postorder(node.right, result)
+    result << node.data
+  end
+
+  def height(input, node = root, counter = [0])
+    if input < node.data
+      counter << counter[-1] + 1
+      height(input, node.left, counter)
+    elsif input > node.data
+      counter << counter[-1] + 1
+      height(input, node.right, counter)
+    end
+
+    counter[-1] - leaf_node?(node)
+  end
+
+  def depth(input, node = root, depth = [0])
+    if input < node.data
+      depth << depth[-1] + 1
+      depth(input, node.left, depth)
+    elsif input > node.data
+      depth << depth[-1] + 1
+      depth(input, node.right, depth)
+    end
+    depth[-1]
+  end
+
+  def leaf_node?(node, counter = [0])
+    if !node.left.nil?
+      counter << counter [0] + 1
+      leaf_node?(node.left, counter)
+    elsif !node.right.nil?
+      counter << counter [0] + 1
+      leaf_node?(node.right, counter)
+    elsif node.left.nil? && node.right.nil?
+      counter[-1]
     end
   end
 
@@ -185,5 +238,24 @@ puts 'find me node 67'
 tree.find(tree.root, 67)
 
 puts 'Level order traversal'
-p tree.level_order(tree)
+tree.level_order do |node|
+  puts "level order #{node}"
+end
 
+puts 'preorder'
+p tree.preorder
+
+puts 'preorder block test'
+tree.preorder { |lang| puts "preorder #{lang}" }
+
+puts 'inorder'
+p tree.inorder
+
+puts 'postorder'
+p tree.postorder
+
+puts 'height of node 324'
+p tree.height(324)
+
+puts 'depth of node 324'
+p tree.depth(324)
