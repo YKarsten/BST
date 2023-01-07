@@ -124,7 +124,7 @@ class Tree
       return result
     end
 
-    result << node.data
+    result << node
     preorder(node.left, result)
     preorder(node.right, result)
   end
@@ -133,7 +133,7 @@ class Tree
     return result if node.nil?
 
     inorder(node.left, result)
-    result << node.data
+    result << node
     inorder(node.right, result)
   end
 
@@ -145,16 +145,29 @@ class Tree
     result << node.data
   end
 
-  def height(input, node = root, counter = [0])
+  def height(input, node = root)
     if input < node.data
-      counter << counter[-1] + 1
-      height(input, node.left, counter)
+      height(input, node.left)
     elsif input > node.data
-      counter << counter[-1] + 1
-      height(input, node.right, counter)
+      height(input, node.right)
+    else
+      leaf_node?(node)
     end
 
-    counter[-1] - leaf_node?(node)
+  end
+
+  def leaf_node?(node, counter = [0])
+    return 0 if node.nil?
+
+    if !node.left.nil?
+      counter << counter [-1] + 1
+      leaf_node?(node.left, counter)
+    elsif !node.right.nil?
+      counter << counter [-1] + 1
+      leaf_node?(node.right, counter)
+    elsif node.left.nil? && node.right.nil?
+      counter[-1]
+    end
   end
 
   def depth(input, node = root, depth = [0])
@@ -168,17 +181,38 @@ class Tree
     depth[-1]
   end
 
-  def leaf_node?(node, counter = [0])
-    if !node.left.nil?
-      counter << counter [0] + 1
-      leaf_node?(node.left, counter)
-    elsif !node.right.nil?
-      counter << counter [0] + 1
-      leaf_node?(node.right, counter)
-    elsif node.left.nil? && node.right.nil?
-      counter[-1]
+  def balanced?
+    node_array = preorder
+    node_array.each do |node|
+      return true unless leaf_node?(node.left) - leaf_node?(node.right) == -1
     end
   end
+
+  # private int balanceHeight (TreeNode currentNode)
+  #   {
+  #       if (currentNode == null)
+  #       {
+  #           return 0;
+  #       }
+
+  #       // checking left subtree
+  #       int leftSubtreeHeight = balanceHeight (currentNode.left);
+  #       if (leftSubtreeHeight == -1) return -1;
+  #       // if left subtree is not balanced then the entire tree is also not balanced
+
+  #       //checking right subtree
+  #       int rightSubtreeHeight = balanceHeight (currentNode.right);
+  #       if (rightSubtreeHeight == -1) return -1;
+  #       // if right subtree is not balanced then the entire          tree is also not balanced
+
+  #       //checking the difference of left and right subtree for current node
+  #       if (Math.abs(leftSubtreeHeight - rightSubtreeHeight) > 1)
+  #       {
+  #           return -1;
+  #       }
+  #       //if it is balanced then return the height
+  #       return (Math.max(leftSubtreeHeight, rightSubtreeHeight) + 1);
+  #   }
 
   def single_child(tree, node)
     if node < tree.data
@@ -259,3 +293,6 @@ p tree.height(324)
 
 puts 'depth of node 324'
 p tree.depth(324)
+
+puts 'balanced?'
+puts tree.balanced?
